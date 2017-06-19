@@ -3,7 +3,7 @@ from calculator import parse
 
 while True:
     try:
-        s = input('calc> ')
+        exp_str = raw_input('calc> ')
     except EOFError:
         break
-    print(parse(s))
+    print(parse(exp_str))
