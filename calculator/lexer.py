@@ -22,12 +22,57 @@ muestra aquí abajo.
 
 tokens = (
     'NUMBER',
-    'PLUS',
+    'BOOLEAN',
+    'BOOL',
+    'NAT',
+    'PARENTESIS_ABRE',
+    'PARENTESIS_CIERRA',
+    'VAR',
+    'IF',
+    'THEN',
+    'ELSE',
+    'REVERSE_SLASH',
+    'DOT',
+    '2DOT',
+    'ARROW',
+    'SUCC',
+    'ISZERO',
+    'PRED'
 )
 
-t_PLUS = r'\+'
-t_NUMBER =  r'\d+'
+t_NUMBER =  r'[0-9]+'
+t_BOOLEAN =  r'true|false'
+t_BOOL =  r'Bool'
+t_NAT =  r'Nat'
+t_SUCC =  r'succ'
+t_ISZERO =  r'iszero'
+t_PRED =  r'pred'
+t_PARENTESIS_ABRE =  r'\('
+t_PARENTESIS_CIERRA =  r'\)'
+t_VAR =  r'[a-z]'
+t_REVERSE_SLASH = r'\\'
+t_DOT = r'\.'
+t_2DOT = r'\:'
+t_ARROW = r'->'
+t_ignore  = ' \t'
 
+reserved = {
+    'if' : 'IF',
+    'then' : 'THEN',
+    'else' : 'ELSE'
+}
+
+def t_IF(t):
+    r'if'
+    return t
+
+def t_THEN(t):
+    r'then'
+    return t
+
+def t_ELSE(t):
+    r'else'
+    return t
 
 # Build the lexer
 lexer = lex.lex()
