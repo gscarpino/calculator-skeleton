@@ -40,7 +40,7 @@ tokens = (
     'PRED'
 )
 
-t_NUMBER =  r'[0-9]+'
+t_NUMBER =  r'\d+'
 t_BOOLEAN =  r'true|false'
 t_BOOL =  r'Bool'
 t_NAT =  r'Nat'
@@ -49,7 +49,7 @@ t_ISZERO =  r'iszero'
 t_PRED =  r'pred'
 t_PARENTESIS_ABRE =  r'\('
 t_PARENTESIS_CIERRA =  r'\)'
-t_VAR =  r'[a-z]'
+t_VAR =  r'x'
 t_REVERSE_SLASH = r'\\'
 t_DOT = r'\.'
 t_2DOT = r'\:'

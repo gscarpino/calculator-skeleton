@@ -23,6 +23,7 @@ def p_term_bool(p):
 
 def p_term_nat(p):
     'term : NAT'
+    print "b",p[1]
     p[0] = p[1]
 
 def p_term_arrow(p):
@@ -43,11 +44,16 @@ def p_value_boolean(p):
 
 def p_value_num(p):
     'value : number'
+    print "num",p[1]
     p[0] = p[1]
 
 def p_value_succ(p):
     'value : SUCC PARENTESIS_ABRE number PARENTESIS_CIERRA'
     p[0] = str(int(p[3]) + 1)
+
+def p_var_succ(p):
+    'value : SUCC PARENTESIS_ABRE var PARENTESIS_CIERRA'
+    p[0] = p[1] + p[2] + p[3] + p[4]
 
 def p_value_pred(p):
     'value : PRED PARENTESIS_ABRE number PARENTESIS_CIERRA'
@@ -69,16 +75,19 @@ def p_val(p):
 def p_value_app(p):
     'value : val value'
     #Falta probar
+    print "xxx", p[1]
+    print "yyy", p[2]
     p[0] = p[1][1].replace(p[1][0],p[2])
 
 def p_var_lambda_exp(p):
     'var : VAR'
+    print "var",p[1]
     p[0] = p[1]
 
 
 def p_error(p):
     print("Hubo un error en el parseo.")
-
+    print p
     parser.restart()
 
 
