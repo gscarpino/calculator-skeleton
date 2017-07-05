@@ -6,84 +6,123 @@ from .lexer import tokens
 """
 Producciones
 
-E -> VE | lambda
-V -> true | false | N | if E then E else E | \S:T.E | succ(E) | pred(E) | iszero(E)
+E -> V E | lambda
+V -> true | false | 0 | if E then E else E | \S:T.E | succ(E) | pred(E) | iszero(E)
 S -> var
-N -> num
 T -> Bool | Nat | T -> T
 """
 
+precedence = [
+    ('right', 'REVERSE_SLASH'),
+    ('right', '2DOT'),
+    ('right', 'DOT')
+]
+
+
 def p_expression_value(p):
-    'expression : value'
+    'expression : value expression'
+    if p[2] == None:
+        p[0] = p[1]
+        pass
+    else:
+        #value es (var,type,expression)
+        #p[0] =
+        print p[1], p[2]
+        typeExp = p[1][1].split("->")
+        typeValue = p[2][1].split("->")
+        print "exp: ", typeExp
+        print "value: ",typeValue
+        p[0] = p[1][2].replace(p[1][0],p[2][0])
+
+def p_expression_lambda(p):
+    'expression : '
+    pass
+
+def p_type_bool(p):
+    'type : BOOL'
     p[0] = p[1]
 
-def p_term_bool(p):
-    'term : BOOL'
+def p_type_nat(p):
+    'type : NAT'
     p[0] = p[1]
 
-def p_term_nat(p):
-    'term : NAT'
-    print "b",p[1]
-    p[0] = p[1]
-
-def p_term_arrow(p):
-    'term : term ARROW term'
+def p_type_arrow(p):
+    'type : type ARROW type'
     p[0] = p[1] + p[2] + p[3]
 
-def p_number_num(p):
-    'number : NUMBER'
-    p[0] = p[1]
 
 def p_value_ite(p):
     'value : IF value THEN value ELSE value'
-    p[0] = p[4] if p[2] == 'true' else p[6]
+    if p[2][1] != 'Bool':
+        msg("condicion del if no es bool")
+        return p_error(p)
+    if p[4][1] != p[6][1]:
+        msg("if con distinto tipo en lo que devuelve")
+        return p_error(p)
+    p[0] = p[4] if p[2][0]  == 'true' else p[6]
 
 def p_value_boolean(p):
     'value : BOOLEAN'
+    p[0] = (p[1], 'Bool')
+
+def p_value_zero(p):
+    'value : ZERO'
+    p[0] = ("0",'Nat')
+
+"""def p_zero_succ(p):
+    'value : SUCC PARENTESIS_ABRE ZERO PARENTESIS_CIERRA'
+    p[0] = 1"""
+
+
+def p_value_succ_var(p):
+    'value : SUCC PARENTESIS_ABRE expression PARENTESIS_CIERRA'
+    print "succ"
+    p[0] = (p[1] + p[2] + p[3][0] + p[4], "Nat")
+
+"""def p_value_succ(p):
+    'value : SUCC PARENTESIS_ABRE expression PARENTESIS_CIERRA'
+    print "***",p[1] , p[2] , p[3] , p[4],"***"
+    if p[3][1] == 'Nat':
+        p[0] = (p[3][0] + 1, 'Nat')
+    else:
+        #TODO: control de errores
+        msg("No tipa succ")
+        p_error(p)"""
+
+def p_exp_var(p):
+    'expression : var'
     p[0] = p[1]
-
-def p_value_num(p):
-    'value : number'
-    print "num",p[1]
-    p[0] = p[1]
-
-def p_value_succ(p):
-    'value : SUCC PARENTESIS_ABRE number PARENTESIS_CIERRA'
-    p[0] = str(int(p[3]) + 1)
-
-def p_var_succ(p):
-    'value : SUCC PARENTESIS_ABRE var PARENTESIS_CIERRA'
-    p[0] = p[1] + p[2] + p[3] + p[4]
 
 def p_value_pred(p):
-    'value : PRED PARENTESIS_ABRE number PARENTESIS_CIERRA'
-    p[0] = str(int(p[3]) - 1)
+    'value : PRED PARENTESIS_ABRE expression PARENTESIS_CIERRA'
+    if p[3][1] == 'Nat':
+        p[0] = (p[3][0] - 1, 'Nat')
+    else:
+        #TODO: control de errores
+        msg("No tipa pred")
+        p_error(p)
 
 def p_value_iszero(p):
-    'value : ISZERO PARENTESIS_ABRE number PARENTESIS_CIERRA'
-    p[0] = str(int(p[3]) == 0)
+    'value : ISZERO PARENTESIS_ABRE expression PARENTESIS_CIERRA'
+    if p[3][1] == 'Nat':
+        p[0] = p[3][0] == 0
+    else:
+        #TODO: control de errores
+        msg("No tipa iszero")
+        p_error(p)
 
 def p_value_lambda_exp(p):
-    'value : REVERSE_SLASH var 2DOT term DOT value'
-    #Falla cuando se usa var en value
-    p[0] = (p[2], p[6])
-
-def p_val(p):
-    'val : value'
-    p[0] = p[1]
-
-def p_value_app(p):
-    'value : val value'
-    #Falta probar
-    print "xxx", p[1]
-    print "yyy", p[2]
-    p[0] = p[1][1].replace(p[1][0],p[2])
+    'value : REVERSE_SLASH var 2DOT type DOT expression'
+    print "funcion anonima"
+    p[0] = (p[2], p[4], p[6])
 
 def p_var_lambda_exp(p):
     'var : VAR'
-    print "var",p[1]
+    print "VAAAR", p[1]
     p[0] = p[1]
 
+def msg(msg):
+    print msg
 
 def p_error(p):
     print("Hubo un error en el parseo.")

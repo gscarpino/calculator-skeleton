@@ -21,7 +21,7 @@ muestra aquí abajo.
 """
 
 tokens = (
-    'NUMBER',
+    'ZERO',
     'BOOLEAN',
     'BOOL',
     'NAT',
@@ -40,7 +40,7 @@ tokens = (
     'PRED'
 )
 
-t_NUMBER =  r'\d+'
+
 t_BOOLEAN =  r'true|false'
 t_BOOL =  r'Bool'
 t_NAT =  r'Nat'
@@ -49,7 +49,6 @@ t_ISZERO =  r'iszero'
 t_PRED =  r'pred'
 t_PARENTESIS_ABRE =  r'\('
 t_PARENTESIS_CIERRA =  r'\)'
-t_VAR =  r'x'
 t_REVERSE_SLASH = r'\\'
 t_DOT = r'\.'
 t_2DOT = r'\:'
@@ -72,6 +71,15 @@ def t_THEN(t):
 
 def t_ELSE(t):
     r'else'
+    return t
+
+def t_VAR(t):
+    r'x'
+    return t
+
+def t_ZERO(t):
+    r'0'
+    t.value = "0"
     return t
 
 # Build the lexer
