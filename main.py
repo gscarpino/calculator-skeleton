@@ -3,7 +3,7 @@ from calculator import parse
 
 while True:
     try:
-        exp_str = raw_input('calc> ')
+        exp_str = raw_input('lambda> ')
     except EOFError:
         break
     print(parse(exp_str))

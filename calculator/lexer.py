@@ -75,7 +75,7 @@ def t_ELSE(t):
     return t
 
 def t_VAR(t):
-    r'x'
+    r'[abcdefghijklmnopqrstuvwxyz]{1}'
     return t
 
 def t_ZERO(t):

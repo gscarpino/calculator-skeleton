@@ -24,7 +24,7 @@ A(arro) -> -> T | lambda
 
 --------------------------------
 
-E -> FE | V | lambda
+E -> F E | V | lambda
 F -> (E) | if E then E else E | succ(E) | pred(E) | iszero(E) | var
 V -> true | false | 0 | X
 X -> \var:T.E
@@ -36,9 +36,11 @@ R -> -> T | lambda
 
 precedence = [
     ('right', 'REVERSE_SLASH', '2DOT', 'DOT'),
-    ('right', 'IF', 'THEN', 'ELSE'),
     ('left', 'PARENTESIS_CIERRA'),
     ('right', 'PARENTESIS_ABRE'),
+    ('right', 'IF'),
+    ('right','THEN'),
+    ('right','ELSE'),
     ('right', 'PRED','ISZERO'),
     ('right', 'ZERO', 'BOOLEAN', 'SUCC', 'VAR')
 ]
@@ -48,32 +50,32 @@ def p_expression_value(p):
     'expression : value'
     p[0] = p[1]
 
-def p_expression_app(p):
+def p_expression_aplicacion(p):
     'expression : term expression'
-    if p[2] == None:
-        p[0] = p[1]
-        pass
+    p[0] = p[1]
+    """if p[2] == None:
+        if len(p[1]) == 3:
+            p[0] = (p[1][0], p[1][1][2] + "->" + p[1][2])
+        else:
+            p[0] = (p[1][0], p[1][1])
     else:
-        #value es (var,type,expression)
-        #p[0] =
-        print p[1], p[2]
-        typeExp = p[1][1].split("->")
-        typeValue = p[2][1].split("->")
-        print "exp: ", typeExp
-        print "value: ",typeValue
-        p[0] = p[1][2].replace(p[1][0],p[2][0])
-
+        if p[1][1][2] != p[2][1]:
+            return msg("La funcion pedia tipo " + p[1][1][2] + " y recibio tipo " + p[2][1], p)
+        m = p[1][1][1].replace(p[1][1][0], p[2][0])
+        p[0] = apply_parser(m)
+        #TO DO el primer pedazo del tipo de 1 tieme que ser el de 2
+"""
 def p_expression_lambda(p):
     'expression : '
     pass
 
 def p_value_boolean(p):
     'value : BOOLEAN'
-    p[0] = (p[1], 'Bool')
+    p[0] = [p[1], 'Bool', {}]
 
 def p_value_zero(p):
     'value : ZERO'
-    p[0] = ("0",'Nat')
+    p[0] = ['0','Nat', {}]
 
 def p_term_var(p):
     'term : var'
@@ -86,54 +88,115 @@ def p_term_parentesis(p):
 
 def p_term_succ_var(p):
     'term : SUCC PARENTESIS_ABRE expression PARENTESIS_CIERRA'
-    if p[3][1] == 'Nat':
-        p[0] = (p[1] + p[2] + p[3][0] + p[4], "Nat")
+    if p[3][1] == 'undefined':
+        p[3][1] = 'Nat'
+        #TODO: cambiar a regexp
+        if p[3][0] == 'x':
+            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", mgu({p[3][0]: 'Nat'}, p[3][2])]
+        else:
+            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
     else:
-        #TODO: control de errores
-        msg("No tipa succ")
-        p_error(p)
+        if p[3][1] == 'Nat':
+            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
+        else:
+            #TODO: control de errores
+            msg("No tipa succ")
+            p_error(p)
 
 def p_term_iszero(p):
     'term : ISZERO PARENTESIS_ABRE expression PARENTESIS_CIERRA'
-    if p[3][1] == 'Nat':
-        print p[3][0] == "0"
-        p[0] = (p[3][0] == "0", "Bool")
+    if p[3][1] == 'undefined':
+        p[3][1] = 'Nat'
+        #TODO: cambiar a regexp
+        if p[3][0] == 'x':
+            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Bool", mgu({p[3][0]: 'Nat'}, p[3][2])]
+        else:
+            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Bool", p[3][2]]
     else:
-        #TODO: control de errores
-        msg("No tipa iszero")
-        p_error(p)
+        if p[3][1] == 'Nat':
+            if p[3][0] == "0":
+                p[0] = ["true", "Bool", p[3][2]]
+            else:
+                if len(p[3][2]) > 0:
+                    p[0] = [p[1] + p[2] + p[3][0] + p[4], "Bool", p[3][2]]
+                else:
+                    p[0] = ["false", "Bool", p[3][2]]
+        else:
+            #TODO: control de errores
+            msg("No tipa succ")
+            p_error(p)
+
 
 def p_term_pred(p):
     'term : PRED PARENTESIS_ABRE expression PARENTESIS_CIERRA'
-    if p[3][1] == 'Nat':
-        if (p[3][0] == 'succ(0)' or p[3][0] == "0"):
-            p[0] = ("0", "Nat")
+    if p[3][1] == 'undefined':
+        p[3][1] = 'Nat'
+        #TODO: cambiar a regexp
+        if p[3][0] == 'x':
+            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", mgu({p[3][0]: 'Nat'}, p[3][2])]
         else:
-            m = re.search("succ\((.+)\)",p[3][0])
-            if m:
-                p[0] = (m.group(1), "Nat")
-            else:
-                msg("No tipa pred")
-                p_error(p)
+            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
     else:
-        #TODO: control de errores
-        msg("No tipa pred")
-        p_error(p)
+        if p[3][1] == 'Nat':
+            if (p[3][0] == "0"):
+                p[0] = p[3] #("0", "Nat", {})
+            else:
+                m = re.search("succ\((.+)\)",p[3][0])
+                if m:
+                    p[0] = [m.group(1), "Nat", p[3][2]]
+                else:
+                    if len(p[3][2]) > 0:
+                        p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
+                    else:
+                        msg("No tipa pred")
+                        p_error(p)
+        else:
+            #TODO: control de errores
+            msg("No tipa pred")
+            p_error(p)
 
 
 def p_term_ite(p):
     'term : IF expression THEN expression ELSE expression'
+
+    if p[2][1] == 'undefined':
+        p[2][1] = 'Bool'
+        #TODO: cambiar a regexp
+        if [2][0] == 'x':
+            p[2][2] = mgu({p[2][0]: 'Bool'}, p[2][2])
     if p[2][1] != 'Bool':
         msg("condicion del if no es bool")
         return p_error(p)
     if p[4][1] != p[6][1]:
-        msg("if con distinto tipo en lo que devuelve")
-        return p_error(p)
-    p[0] = p[4] if (p[2][0] or p[2][0] == 'true') else p[6]
+        if p[4][1] == 'undefined':
+            p[4][1] = p[6][1]
+            #TODO: cambiar a regexp
+            if p[4][0] == 'x':
+                p[4][2] = {p[4][0]: p[6][1]}
+        else:
+            if p[6][1] == 'undefined':
+                p[6][1] = p[4][1]
+                #TODO: cambiar a regexp
+                if p[6][0] == 'x':
+                    p[6][2] = {p[6][0]: p[4][1]}
+            else:
+                msg("if con distinto tipo en lo que devuelve")
+                return p_error(p)
+    unifiedContext = mgu(p[4][2], p[2][2], p[6][2])
+    if p[2][0] == 'true' or p[2][0] == 'false':
+        if p[2][0] == 'true':
+            p[4][2] = unifiedContext
+            p[0] = p[4]
+        else:
+            p[6][2] = unifiedContext
+            p[0] = p[6]
+    else:
+        p[0] = [p[1] + p[2][0] + p[3] + p[4][0] + p[5] + p[6][0], p[4][1], unifiedContext]
+
 
 
 def p_type(p):
-    'type : right left'
+    'type : left right'
     p[0] = p[1]
 
 
@@ -155,13 +218,11 @@ def p_type_lambda(p):
 
 def p_var_lambda_exp(p):
     'var : VAR'
-    p[0] = (p[1], null)
-
+    p[0] = [p[1], 'undefined', {'x': 'undefined'}]
 
 def p_value_lambda_exp(p):
     'value : REVERSE_SLASH var 2DOT type DOT expression'
-    print "funcion anonima"
-    p[0] = (p[2], p[4], p[6])
+    p[0] = [p[1] + p[2][0] + p[3] + p[4] + p[5] + p[6][0], p[4] + " -> " + p[6][1], mgu({p[2][0]: p[4]}, p[6][2])]
 
 def msg(msg):
     print msg
@@ -171,6 +232,20 @@ def p_error(p):
     print p
     parser.restart()
 
+def mgu(main, *contexts):
+    for context in contexts:
+        for v in context.keys():
+            if main.has_key(v):
+                if main[v] == "undefined":
+                    main[v] = context[v]
+                if main[v] != context[v] and context[v] != "undefined":
+                    msg("Error de tipeo, no tipa " + v + ": " + context[v] + " distinto de " + main[v])
+                    p_error("Error de tipeo, no tipa " + v + ": " + context[v] + " distinto de " + main[v])
+            else:
+                main[v] = context[v]
+            pass
+        pass
+    return main
 
 # Build the parser
 parser = yacc.yacc(debug=True)
