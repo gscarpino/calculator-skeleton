@@ -88,13 +88,12 @@ def p_term_parentesis(p):
 
 def p_term_succ_var(p):
     'term : SUCC PARENTESIS_ABRE expression PARENTESIS_CIERRA'
+    if p[3][1] == 'var':
+        p[3][1] = 'Nat'
+        p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", mgu({p[3][0]: 'Nat'}, p[3][2])]
     if p[3][1] == 'undefined':
         p[3][1] = 'Nat'
-        #TODO: cambiar a regexp
-        if p[3][0] == 'x':
-            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", mgu({p[3][0]: 'Nat'}, p[3][2])]
-        else:
-            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
+        p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
     else:
         if p[3][1] == 'Nat':
             p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
@@ -105,13 +104,12 @@ def p_term_succ_var(p):
 
 def p_term_iszero(p):
     'term : ISZERO PARENTESIS_ABRE expression PARENTESIS_CIERRA'
+    if p[3][1] == 'var':
+        p[3][1] = 'Nat'
+        p[0] = [p[1] + p[2] + p[3][0] + p[4], "Bool", mgu({p[3][0]: 'Nat'}, p[3][2])]
     if p[3][1] == 'undefined':
         p[3][1] = 'Nat'
-        #TODO: cambiar a regexp
-        if p[3][0] == 'x':
-            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Bool", mgu({p[3][0]: 'Nat'}, p[3][2])]
-        else:
-            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Bool", p[3][2]]
+        p[0] = [p[1] + p[2] + p[3][0] + p[4], "Bool", p[3][2]]
     else:
         if p[3][1] == 'Nat':
             if p[3][0] == "0":
@@ -129,13 +127,12 @@ def p_term_iszero(p):
 
 def p_term_pred(p):
     'term : PRED PARENTESIS_ABRE expression PARENTESIS_CIERRA'
+    if p[3][1] == 'var':
+        p[3][1] = 'Nat'
+        p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", mgu({p[3][0]: 'Nat'}, p[3][2])]
     if p[3][1] == 'undefined':
         p[3][1] = 'Nat'
-        #TODO: cambiar a regexp
-        if p[3][0] == 'x':
-            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", mgu({p[3][0]: 'Nat'}, p[3][2])]
-        else:
-            p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
+        p[0] = [p[1] + p[2] + p[3][0] + p[4], "Nat", p[3][2]]
     else:
         if p[3][1] == 'Nat':
             if (p[3][0] == "0"):
@@ -158,27 +155,29 @@ def p_term_pred(p):
 
 def p_term_ite(p):
     'term : IF expression THEN expression ELSE expression'
-
+    if p[2][1] == 'var':
+        p[2][1] = 'Bool'
+        p[2][2] = mgu({p[2][0]: 'Bool'}, p[2][2])
     if p[2][1] == 'undefined':
         p[2][1] = 'Bool'
-        #TODO: cambiar a regexp
-        if [2][0] == 'x':
-            p[2][2] = mgu({p[2][0]: 'Bool'}, p[2][2])
     if p[2][1] != 'Bool':
         msg("condicion del if no es bool")
         return p_error(p)
+    if p[4][1] == 'var' and p[6][1] == 'var':
+        p[4][1] = 'undefined'
+        p[6][1] = 'undefined'
     if p[4][1] != p[6][1]:
-        if p[4][1] == 'undefined':
+        if p[4][1] == 'var' and p[6][1] != 'var':
+            p[4][1] = 'undefined'
+            p[4][2] = {p[4][0]: p[6][1]}
+        if p[4][1] == 'undefined' and p[6][1] != 'var':
             p[4][1] = p[6][1]
-            #TODO: cambiar a regexp
-            if p[4][0] == 'x':
-                p[4][2] = {p[4][0]: p[6][1]}
         else:
+            if p[6][1] == 'var':
+                p[6][1] = 'undefined'
+                p[6][2] = {p[6][0]: p[4][1]}
             if p[6][1] == 'undefined':
                 p[6][1] = p[4][1]
-                #TODO: cambiar a regexp
-                if p[6][0] == 'x':
-                    p[6][2] = {p[6][0]: p[4][1]}
             else:
                 msg("if con distinto tipo en lo que devuelve")
                 return p_error(p)
@@ -218,10 +217,11 @@ def p_type_lambda(p):
 
 def p_var_lambda_exp(p):
     'var : VAR'
-    p[0] = [p[1], 'undefined', {'x': 'undefined'}]
+    p[0] = [p[1], 'var', {p[1]: 'undefined'}]
 
 def p_value_lambda_exp(p):
     'value : REVERSE_SLASH var 2DOT type DOT expression'
+    
     p[0] = [p[1] + p[2][0] + p[3] + p[4] + p[5] + p[6][0], p[4] + " -> " + p[6][1], mgu({p[2][0]: p[4]}, p[6][2])]
 
 def msg(msg):
