@@ -87,7 +87,6 @@ def t_ELSE(t):
 
 def t_VAR(t):
     r'[a-z]{1}'
-    #r'x'
     return t
 
 def t_ZERO(t):
