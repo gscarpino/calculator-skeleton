@@ -40,17 +40,11 @@ tokens = (
     'PRED'
 )
 
-
-t_BOOLEAN =  r'true|false'
 t_BOOL =  r'Bool'
 t_NAT =  r'Nat'
-t_SUCC =  r'succ'
-t_ISZERO =  r'iszero'
-t_PRED =  r'pred'
 t_PARENTESIS_ABRE =  r'\('
 t_PARENTESIS_CIERRA =  r'\)'
 t_REVERSE_SLASH = r'\\'
-#t_SPACE = r'\s'
 t_DOT = r'\.'
 t_2DOT = r'\:'
 t_ARROW = r'->'
@@ -61,6 +55,23 @@ reserved = {
     'then' : 'THEN',
     'else' : 'ELSE'
 }
+
+
+def t_SUCC(t):
+    r'succ'
+    return t
+
+def t_ISZERO(t):
+    r'iszero'
+    return t
+
+def t_PRED(t):
+    r'pred'
+    return t
+
+def t_BOOLEAN(t):
+    r'true|false'
+    return t
 
 def t_IF(t):
     r'if'
@@ -75,7 +86,8 @@ def t_ELSE(t):
     return t
 
 def t_VAR(t):
-    r'[abcdefghijklmnopqrstuvwxyz]{1}'
+    r'[a-z]{1}'
+    #r'x'
     return t
 
 def t_ZERO(t):
@@ -89,5 +101,4 @@ lexer = lex.lex()
 def apply_lexer(string):
     """Aplica el lexer al string dado."""
     lexer.input(string)
-
     return list(lexer)
