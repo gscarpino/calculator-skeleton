@@ -6,4 +6,9 @@ while True:
         exp_str = raw_input('lambda> ')
     except EOFError:
         break
-    print(parse(exp_str))
+
+    parse(exp_str).typed({})
+    print "EVAL: "
+    parse(exp_str).eval({}).show()
+    print "TYPE: "
+    parse(exp_str).typed({}).show()
