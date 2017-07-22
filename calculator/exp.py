@@ -103,7 +103,7 @@ class IsZeroExp(Expression):
         if sameType(self.exp.typed(context), NatType()):
             return BoolType()
         else:
-            #Error!
+            err("Dominio de succ tiene que ser del tipo Nat")
             pass
 
     def string(self):
@@ -124,7 +124,7 @@ class PredExp(Expression):
         if sameType(self.exp.typed(context), NatType()):
             return NatType()
         else:
-            #Error!
+            err("Dominio de succ tiene que ser del tipo Nat")
             pass
 
     def string(self):
