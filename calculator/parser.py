@@ -18,10 +18,10 @@ T -> T -> T
 """
 
 precedence = [
-    ('left', 'REVERSE_SLASH'),
-    ('left', 'IF'),
-    ('nonassoc', 'VAR', 'PARENTESIS_ABRE', 'ISZERO', 'PRED', 'SUCC', 'ZERO', 'BOOL'),
-    ('left', 'APP'),
+    ('nonassoc', 'UREVERSE_SLASH'),
+    ('nonassoc', 'UIF'),
+    ('nonassoc', 'VAR', 'PARENTESIS_ABRE', 'ISZERO', 'PRED', 'SUCC', 'ZERO', 'BOOL', 'IF', 'REVERSE_SLASH'),
+    ('left', 'UAPP'),
     ('right', 'ARROW')
 ]
 
@@ -30,7 +30,7 @@ def p_expression_main(p):
     p[0] = p[1]
 
 def p_expression_aplicacion(p):
-    'expression : expression expression %prec APP'
+    'expression : expression expression %prec UAPP'
     p[0] = AppExp(p[1], p[2])
 
 def p_value_boolean(p):
@@ -62,7 +62,7 @@ def p_term_pred(p):
     p[0] = PredExp(p[3])
 
 def p_term_ite(p):
-    'expression : IF expression THEN expression ELSE expression %prec IF'
+    'expression : IF expression THEN expression ELSE expression %prec UIF'
     p[0] = IfThenElseExp(p[2], p[4], p[6])
 
 def p_type_nat(p):
@@ -82,7 +82,7 @@ def p_var_lambda_exp(p):
     p[0] = VarExp(p[1])
 
 def p_value_lambda_exp(p):
-    'expression : REVERSE_SLASH var 2DOT type DOT expression %prec REVERSE_SLASH'
+    'expression : REVERSE_SLASH var 2DOT type DOT expression %prec UREVERSE_SLASH'
     p[0] = LambdaExp(p[2], p[4], p[6])
 
 def msg(msg):

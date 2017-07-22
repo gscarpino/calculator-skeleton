@@ -160,8 +160,7 @@ class LambdaExp(Expression):
 
     def eval(self, context):
         if "var" in context:
-            context[self.var.string()] = copy.deepcopy(context["var"]);
-            del context["var"]
+            context[self.var.string()] = context["var"].pop();
             return self.body.eval(context)
         else:
             return LambdaExp(self.var, self.type, self.body)
@@ -181,7 +180,11 @@ class AppExp(Expression):
         self.param = param
 
     def eval(self, context):
-        context["var"] = self.param
+        if "var" in context:
+            context["var"].append(self.param)
+        else:
+            context["var"] = [self.param]
+
         return self.fun.eval(context)
 
     def typed(self, context):
