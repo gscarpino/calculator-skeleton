@@ -7,8 +7,10 @@ while True:
     except EOFError:
         break
 
-    parse(exp_str).typed({})
-    print "EVAL: "
-    parse(exp_str).eval({}).show()
-    print "TYPE: "
-    parse(exp_str).typed({}).show()
+    try:
+        print "TYPE: "
+        print parse(exp_str).typed({}).string()
+        print "EVAL: "
+        print parse(exp_str).eval({}).string()
+    except:
+        pass

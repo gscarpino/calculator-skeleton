@@ -51,15 +51,15 @@ def p_term_parentesis(p):
 
 def p_term_succ_var(p):
     'expression : SUCC PARENTESIS_ABRE expression PARENTESIS_CIERRA'
-    p[0] = SuccExp(p[2])
+    p[0] = SuccExp(p[3])
 
 def p_term_iszero(p):
     'expression : ISZERO PARENTESIS_ABRE expression PARENTESIS_CIERRA'
-    p[0] = IsZeroExp(p[2])
+    p[0] = IsZeroExp(p[3])
 
 def p_term_pred(p):
     'expression : PRED PARENTESIS_ABRE expression PARENTESIS_CIERRA'
-    p[0] = PredExp(p[2])
+    p[0] = PredExp(p[3])
 
 def p_term_ite(p):
     'expression : IF expression THEN expression ELSE expression %prec IF'
