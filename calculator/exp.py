@@ -92,6 +92,7 @@ class SuccExp(Expression):
     def string(self):
         return "succ(" + self.exp.string() + ")"
 
+
 class IsZeroExp(Expression):
     def __init__(self, exp):
         self.exp = exp
@@ -103,11 +104,12 @@ class IsZeroExp(Expression):
         if sameType(self.exp.typed(context), NatType()):
             return BoolType()
         else:
-            err("Dominio de succ tiene que ser del tipo Nat")
+            err("Dominio de iszero tiene que ser del tipo Nat")
             pass
 
     def string(self):
         return "iszero(" + self.exp.string() + ")"
+
 
 class PredExp(Expression):
     def __init__(self, exp):
@@ -124,12 +126,12 @@ class PredExp(Expression):
         if sameType(self.exp.typed(context), NatType()):
             return NatType()
         else:
-            err("Dominio de succ tiene que ser del tipo Nat")
+            err("Dominio de pred tiene que ser del tipo Nat")
             pass
 
     def string(self):
-        print "No deberia llegar a esto"
         return "pred(" + self.exp.string() + ")"
+
 
 class VarExp(Expression):
     def __init__(self, var):
@@ -256,10 +258,8 @@ def sameType(t1, t2):
 def sameExpression(e1, e2):
     return e1.string() == e2.string()
 
-
-
-
 def err(msg):
     print "********************************************"
     print "ERROR: " + msg
     print "********************************************"
+
