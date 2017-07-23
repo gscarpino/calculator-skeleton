@@ -3,7 +3,7 @@ import sys
 from calculator import parse
 
 a = sys.argv
-if len(a) < 1:
+if len(a) < 2:
 	exp = raw_input('lambda> ')
 else:
 	i = 0
